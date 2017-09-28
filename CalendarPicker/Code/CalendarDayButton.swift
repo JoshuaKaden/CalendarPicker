@@ -11,13 +11,18 @@ import UIKit
 final class CalendarDayButton: UIButton {
     let column: Int
     let date: Date
+    let isSpecial: Bool
     let row: Int
     
-    init(row: Int, column: Int, date: Date) {
+    init(row: Int, column: Int, date: Date, isSpecial: Bool = false) {
         self.row = row
         self.column = column
         self.date = date
+        self.isSpecial = isSpecial
+        
         super.init(frame: CGRect.zero)
+        
+        title = String(describing: date.dayOfMonth)
     }
     
     required init?(coder aDecoder: NSCoder) {

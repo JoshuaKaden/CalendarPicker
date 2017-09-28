@@ -18,6 +18,10 @@ final class ExampleViewController: UIViewController {
         
         view.backgroundColor = .gray
         
+        calendarPickerViewController.dateChangedAction = {
+            date in
+            print(date)
+        }
         adoptChildViewController(calendarPickerViewController)
     }
     
@@ -27,7 +31,6 @@ final class ExampleViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
         
         calendarPickerView.width = view.width
     }

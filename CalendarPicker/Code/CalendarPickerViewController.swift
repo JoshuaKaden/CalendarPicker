@@ -14,10 +14,12 @@ protocol CalendarPickerDataSource: class {
 
 final class CalendarPickerViewController: UIViewController {
     
+    private var calendarPickerView: CalendarPickerView { return view as! CalendarPickerView }
     weak var dataSource: CalendarPickerDataSource?
     
     var date: Date = Date() {
         didSet {
+            if date.isSameMonth(date: oldValue) { return }
             configure()
         }
     }
@@ -34,6 +36,14 @@ final class CalendarPickerViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        calendarPickerView.dayButtonTapAction = {
+            date in
+            if let dateChangedAction = self.dateChangedAction {
+                dateChangedAction(date)
+            }
+        }
+        
         configure()
     }
     
@@ -43,29 +53,26 @@ final class CalendarPickerViewController: UIViewController {
         view.height = standardHeight
     }
     
+    // MARK: - Handlers
+    
+    func didTapCalendarDayButton(_ sender: UIButton) {
+        guard let button: CalendarDayButton = sender as? CalendarDayButton else { return }
+        
+        if date.isSameDay(date: button.date) {
+            return
+        }
+        
+        date = button.date
+        
+        if let dateChangedAction = dateChangedAction {
+            dateChangedAction(date)
+        }
+    }
+    
     // MARK: - Private
     
     private func configure() {
-        let startDate = date.startOfMonth
-        let endDate = date.endOfMonth
-        
-        var buttons: [CalendarDayButton] = []
-        var currentRow: Int = 0
-        var currentColumn: Int = startDate.dayOfWeek - 1
-        
-        for buttonIndex in 0...endDate.dayOfMonth - 1 {
-            let buttonDate = startDate.plus(days: buttonIndex)
-            let button = CalendarDayButton(row: currentRow, column: currentColumn, date: buttonDate)
-            buttons.append(button)
-            
-            if currentColumn == 6 {
-                currentRow += 1
-                currentColumn = 0
-            } else {
-                currentColumn += 1
-            }
-        }
-        
-        buttons.forEach { print("\($0.row), \($0.column) \($0.date)") }
+        let specials = dataSource?.monthlySpecials(dayOne: date.startOfMonth)
+        calendarPickerView.buildButtons(targetDate: date, specials: specials)
     }
 }
