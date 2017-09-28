@@ -12,6 +12,7 @@ final class ExampleViewController: UIViewController {
     
     private var calendarPickerView: UIView { return calendarPickerViewController.view }
     private let calendarPickerViewController = CalendarPickerViewController()
+    private let detailLabel = UILabel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,9 +21,14 @@ final class ExampleViewController: UIViewController {
         
         calendarPickerViewController.dateChangedAction = {
             date in
-            print(date)
+            self.detailLabel.text = String(describing: date.timeless)
         }
         adoptChildViewController(calendarPickerViewController)
+        
+        detailLabel.font = .boldSystemFont(ofSize: 24)
+        detailLabel.textAlignment = .center
+        detailLabel.textColor = .white
+        view.addSubview(detailLabel)
     }
     
     deinit {
@@ -33,5 +39,9 @@ final class ExampleViewController: UIViewController {
         super.viewDidLayoutSubviews()
         
         calendarPickerView.width = view.width
+        
+        detailLabel.y = calendarPickerView.maxY
+        detailLabel.width = view.width
+        detailLabel.height = view.height - detailLabel.y
     }
 }
