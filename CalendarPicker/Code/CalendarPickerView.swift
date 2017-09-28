@@ -15,7 +15,11 @@ final class CalendarPickerView: UIView {
         get { return calendarGridView.dayButtonTapAction }
         set { calendarGridView.dayButtonTapAction = newValue }
     }
-
+    var targetDate: Date {
+        get { return calendarGridView.targetDate }
+        set { calendarGridView.targetDate = newValue }
+    }
+    
     override func willMove(toWindow newWindow: UIWindow?) {
         super.willMove(toWindow: newWindow)
         guard let _ = newWindow else { return }

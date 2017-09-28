@@ -19,7 +19,10 @@ final class CalendarPickerViewController: UIViewController {
     
     var date: Date = Date() {
         didSet {
-            if date.isSameMonth(date: oldValue) { return }
+            if date.isSameMonth(date: oldValue) {
+                calendarPickerView.targetDate = date
+                return
+            }
             configure()
         }
     }
