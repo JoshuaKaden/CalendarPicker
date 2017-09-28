@@ -8,18 +8,29 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+final class ViewController: UIViewController {
 
+    private let startButton = UIButton()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        startButton.title = NSLocalizedString("Start", comment: "")
+        startButton.titleColor = UIColor.blue
+        view.addSubview(startButton)
+        
+        startButton.addTarget(self, action: #selector(didTapStart(_:)), for: .touchUpInside)
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        startButton.sizeToFit()
+        startButton.centerInSuperview()
     }
-
-
+    
+    func didTapStart(_ sender: UIButton) {
+        let vc = ExampleViewController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
 }
-
