@@ -22,6 +22,7 @@
 		932A74681F7D6AB500B07A43 /* Date+Sanity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932A74671F7D6AB500B07A43 /* Date+Sanity.swift */; };
 		932A746A1F7D6DFE00B07A43 /* CalendarDayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932A74691F7D6DFE00B07A43 /* CalendarDayButton.swift */; };
 		932A746C1F7D817D00B07A43 /* CalendarGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932A746B1F7D817D00B07A43 /* CalendarGridView.swift */; };
+		936933AC1F7EA6E300916637 /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936933AB1F7EA6E300916637 /* CircleView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,7 @@
 		932A74671F7D6AB500B07A43 /* Date+Sanity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Date+Sanity.swift"; path = "Library/Date+Sanity.swift"; sourceTree = "<group>"; };
 		932A74691F7D6DFE00B07A43 /* CalendarDayButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CalendarDayButton.swift; path = Code/CalendarDayButton.swift; sourceTree = "<group>"; };
 		932A746B1F7D817D00B07A43 /* CalendarGridView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CalendarGridView.swift; path = Code/CalendarGridView.swift; sourceTree = "<group>"; };
+		936933AB1F7EA6E300916637 /* CircleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CircleView.swift; path = Library/CircleView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +91,7 @@
 		932A74581F7D606700B07A43 /* Library */ = {
 			isa = PBXGroup;
 			children = (
+				936933AB1F7EA6E300916637 /* CircleView.swift */,
 				932A74671F7D6AB500B07A43 /* Date+Sanity.swift */,
 				932A745C1F7D608500B07A43 /* UIButton+Setup.swift */,
 				932A745D1F7D608500B07A43 /* UIView+Layer.swift */,
@@ -199,6 +202,7 @@
 				932A74601F7D608500B07A43 /* UIButton+Setup.swift in Sources */,
 				932A74641F7D628600B07A43 /* CalendarPickerViewController.swift in Sources */,
 				932A745F1F7D608500B07A43 /* UIViewController+Parenting.swift in Sources */,
+				936933AC1F7EA6E300916637 /* CircleView.swift in Sources */,
 				932A746C1F7D817D00B07A43 /* CalendarGridView.swift in Sources */,
 				932A74571F7D5FA300B07A43 /* ExampleViewController.swift in Sources */,
 				932A74611F7D608500B07A43 /* UIView+Layer.swift in Sources */,
@@ -368,6 +372,7 @@
 				932A74551F7D5F6700B07A43 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
