@@ -10,6 +10,9 @@ import UIKit
 
 final class CalendarGridView: UIView {
     
+    static let buttonHeight = CGFloat(44)
+    static let standardHeight = buttonHeight * CGFloat(6)
+    
     private var buttons: [CalendarDayButton] = [] {
         didSet {
             oldValue.forEach { $0.removeFromSuperview() }
@@ -34,8 +37,7 @@ final class CalendarGridView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        let lastRowIndex = buttons.last?.row ?? 0
-        let buttonSize = CGSize(width: width / 7, height: height / CGFloat(lastRowIndex + 1))
+        let buttonSize = CGSize(width: width / 7, height: CalendarGridView.buttonHeight)
         
         buttons.forEach {
             button in

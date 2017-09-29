@@ -29,7 +29,7 @@ final class CalendarPickerViewController: UIViewController {
     
     var dateChangedAction: ((Date) -> Void)?
     
-    let standardHeight = CGFloat(216)
+    let standardHeight = CalendarGridView.standardHeight
     
     // MARK: - Lifecycle
     
@@ -39,6 +39,8 @@ final class CalendarPickerViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        view.backgroundColor = UIColor(colorLiteralRed: 247/255, green: 247/255, blue: 247/255, alpha: 1)
         
         calendarPickerView.dayButtonTapAction = {
             date in

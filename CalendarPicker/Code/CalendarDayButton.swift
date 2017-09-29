@@ -16,15 +16,14 @@ final class CalendarDayButton: UIButton {
     
     var isTarget: Bool {
         didSet {
-            if isTarget {
-                backgroundColor = .black
-            } else {
-                backgroundColor = .clear
-            }
+            updateTitleColor()
+            updateTargetCircle()
         }
     }
     
-    // MARK: Lifecycle
+    private let targetCircle = CircleView()
+    
+    // MARK: - Lifecycle
     
     init(row: Int, column: Int, date: Date, isSpecial: Bool = false, isTarget: Bool = false) {
         self.row = row
@@ -36,27 +35,54 @@ final class CalendarDayButton: UIButton {
         super.init(frame: CGRect.zero)
     }
     
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func willMove(toWindow newWindow: UIWindow?) {
         super.willMove(toWindow: newWindow)
         guard let _ = newWindow else { return }
         
         title = String(describing: date.dayOfMonth)
+        updateTitleColor()
         
-        if date.isToday {
-            titleColor = .purple
-        }
-        
-        if isTarget {
-            backgroundColor = .black
-        }
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        targetCircle.backgroundColor = .clear
+        updateTargetCircle()
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         
+        bringSubview(toFront: titleLabel!)
+        
+        targetCircle.frame = bounds
+    }
+    
+    // MARK: - Private
+    
+    private func updateTargetCircle() {
+        if isTarget {
+            addSubview(targetCircle)
+            
+            if date.isToday {
+                targetCircle.fillColor = .red
+            } else {
+                targetCircle.fillColor = .black
+            }
+            
+        } else {
+            targetCircle.removeFromSuperview()
+        }
+    }
+    
+    private func updateTitleColor() {
+        titleColor = .black
+        if date.isToday {
+            titleColor = .red
+        }
+
+        if isTarget {
+            titleColor = .white
+        }
     }
 }

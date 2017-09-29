@@ -20,6 +20,8 @@ final class CalendarPickerView: UIView {
         set { calendarGridView.targetDate = newValue }
     }
     
+    // MARK: - Lifecycle
+    
     override func willMove(toWindow newWindow: UIWindow?) {
         super.willMove(toWindow: newWindow)
         guard let _ = newWindow else { return }
