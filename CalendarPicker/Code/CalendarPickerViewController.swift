@@ -43,12 +43,21 @@ final class CalendarPickerViewController: UIViewController {
         view.backgroundColor = UIColor(colorLiteralRed: 247/255, green: 247/255, blue: 247/255, alpha: 1)
         
         calendarPickerView.dayButtonTapAction = {
+            [weak self]
             date in
-            if let dateChangedAction = self.dateChangedAction {
+            
+            self?.date = date
+            
+            if let dateChangedAction = self?.dateChangedAction {
                 dateChangedAction(date)
             }
+            
+            self?.findSpecialDates()
         }
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         configure()
     }
     
@@ -58,29 +67,27 @@ final class CalendarPickerViewController: UIViewController {
         view.height = standardHeight
     }
     
-    // MARK: - Handlers
-    
-    func didTapCalendarDayButton(_ sender: UIButton) {
-        guard let button: CalendarDayButton = sender as? CalendarDayButton else { return }
-        
-        if date.isSameDay(date: button.date) {
-            return
-        }
-        
-        date = button.date
-        
-        if let dateChangedAction = dateChangedAction {
-            dateChangedAction(date)
-        }
-    }
-    
     // MARK: - Private
     
     private func configure() {
-        calendarPickerView.buildButtons(targetDate: date, specials: nil)
+        calendarPickerView.buildButtons(targetDate: date, shouldForce: true)
+        findSpecialDates()
+    }
+    
+    private func findSpecialDates() {
         dataSource?.findSpecialDates(startDate: date.startOfMonth, endDate: date.endOfMonth) {
             dates in
-            calendarPickerView.apply(specials: dates)
+            calendarPickerView.apply(specials: dates, monthType: .current)
+        }
+        
+        dataSource?.findSpecialDates(startDate: date.endOfMonth.plus(days: 1), endDate: date.endOfMonth.plus(days: 1).endOfMonth) {
+            dates in
+            calendarPickerView.apply(specials: dates, monthType: .next)
+        }
+        
+        dataSource?.findSpecialDates(startDate: date.startOfPreviousMonth, endDate: date.startOfPreviousMonth.endOfMonth) {
+            dates in
+            calendarPickerView.apply(specials: dates, monthType: .previous)
         }
     }
 }

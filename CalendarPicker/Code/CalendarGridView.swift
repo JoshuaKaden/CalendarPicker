@@ -13,6 +13,8 @@ final class CalendarGridView: UIView {
     static let buttonHeight = CGFloat(44)
     static let standardHeight = buttonHeight * CGFloat(6)
     
+    private let blockerView = UIView()
+    
     private var buttons: [CalendarDayButton] = [] {
         didSet {
             oldValue.forEach { $0.removeFromSuperview() }
@@ -22,6 +24,16 @@ final class CalendarGridView: UIView {
     }
     
     var dayButtonTapAction: ((Date) -> Void)?
+    
+    var isEnabled: Bool = true {
+        didSet {
+            if isEnabled {
+                blockerView.removeFromSuperview()
+            } else {
+                addSubview(blockerView)
+            }
+        }
+    }
     
     var targetDate: Date = Date() {
         didSet {
@@ -45,6 +57,8 @@ final class CalendarGridView: UIView {
             button.x = CGFloat(button.column) * buttonSize.width
             button.y = CGFloat(button.row) * buttonSize.height
         }
+        
+        blockerView.frame = bounds
     }
     
     // MARK: - Handlers
@@ -63,7 +77,7 @@ final class CalendarGridView: UIView {
         buttons.forEach { $0.isSpecial = specials.contains($0.date) }
     }
     
-    func buildButtons(targetDate date: Date, specials: [Date]?) {
+    func buildButtons(targetDate date: Date, specials: [Date]? = nil) {
         let startDate = date.startOfMonth
         let endDate = date.endOfMonth
         
