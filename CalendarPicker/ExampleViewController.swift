@@ -23,6 +23,7 @@ final class ExampleViewController: UIViewController {
             date in
             self.detailLabel.text = String(describing: date.timeless)
         }
+        calendarPickerViewController.dataSource = self
         adoptChildViewController(calendarPickerViewController)
         
         detailLabel.font = .boldSystemFont(ofSize: 24)
@@ -43,5 +44,11 @@ final class ExampleViewController: UIViewController {
         detailLabel.y = calendarPickerView.maxY
         detailLabel.width = view.width
         detailLabel.height = view.height - detailLabel.y
+    }
+}
+
+extension ExampleViewController: CalendarPickerDataSource {
+    func monthlySpecials(dayOne: Date) -> [Date] {
+        return [dayOne.plus(days: 5), dayOne.plus(days: 10), dayOne.plus(days: 15)]
     }
 }

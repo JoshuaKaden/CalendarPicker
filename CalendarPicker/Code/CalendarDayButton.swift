@@ -11,8 +11,13 @@ import UIKit
 final class CalendarDayButton: UIButton {
     let column: Int
     let date: Date
-    let isSpecial: Bool
     let row: Int
+    
+    var isSpecial: Bool {
+        didSet {
+            updateSpecialCircle()
+        }
+    }
     
     var isTarget: Bool {
         didSet {
@@ -21,6 +26,8 @@ final class CalendarDayButton: UIButton {
         }
     }
     
+    private let dayLabel = UILabel()
+    private let specialCircle = CircleView()
     private let targetCircle = CircleView()
     
     // MARK: - Lifecycle
@@ -43,22 +50,44 @@ final class CalendarDayButton: UIButton {
         super.willMove(toWindow: newWindow)
         guard let _ = newWindow else { return }
         
-        title = String(describing: date.dayOfMonth)
-        updateTitleColor()
+        dayLabel.text = String(describing: date.dayOfMonth)
+        dayLabel.textAlignment = .center
+        addSubview(dayLabel)
         
+        specialCircle.backgroundColor = .clear
+        specialCircle.fillColor = UIColor(colorLiteralRed: 204/255, green: 204/255, blue: 204/255, alpha: 1)
         targetCircle.backgroundColor = .clear
+        
+        updateTitleColor()
+        updateSpecialCircle()
         updateTargetCircle()
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        bringSubview(toFront: titleLabel!)
+        bringSubview(toFront: specialCircle)
+        bringSubview(toFront: dayLabel)
+        
+        dayLabel.sizeToFit()
+        dayLabel.centerInSuperview()
         
         targetCircle.frame = bounds
+        
+        specialCircle.size = CGSize(width: 5, height: 5)
+        specialCircle.y = dayLabel.maxY + 3
+        specialCircle.centerHorizontallyInSuperview()
     }
     
     // MARK: - Private
+    
+    private func updateSpecialCircle() {
+        if isSpecial {
+            addSubview(specialCircle)
+        } else {
+            specialCircle.removeFromSuperview()
+        }
+    }
     
     private func updateTargetCircle() {
         if isTarget {
@@ -76,13 +105,13 @@ final class CalendarDayButton: UIButton {
     }
     
     private func updateTitleColor() {
-        titleColor = .black
+        dayLabel.textColor = .black
         if date.isToday {
-            titleColor = .red
+            dayLabel.textColor = .red
         }
 
         if isTarget {
-            titleColor = .white
+            dayLabel.textColor = .white
         }
     }
 }
