@@ -36,6 +36,10 @@ final class CalendarPickerView: UIView {
     
     // MARK: - Public
     
+    func apply(specials: [Date]) {
+        calendarGridView.apply(specials: specials)
+    }
+    
     func buildButtons(targetDate date: Date, specials: [Date]?) {
         calendarGridView.buildButtons(targetDate: date, specials: specials)
     }

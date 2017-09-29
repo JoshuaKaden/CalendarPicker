@@ -59,6 +59,10 @@ final class CalendarGridView: UIView {
     
     // MARK: - Public
     
+    func apply(specials: [Date]) {
+        buttons.forEach { $0.isSpecial = specials.contains($0.date) }
+    }
+    
     func buildButtons(targetDate date: Date, specials: [Date]?) {
         let startDate = date.startOfMonth
         let endDate = date.endOfMonth

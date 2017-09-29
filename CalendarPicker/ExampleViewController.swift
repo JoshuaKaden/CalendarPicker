@@ -20,8 +20,9 @@ final class ExampleViewController: UIViewController {
         view.backgroundColor = .gray
         
         calendarPickerViewController.dateChangedAction = {
+            [weak self]
             date in
-            self.detailLabel.text = String(describing: date.timeless)
+            self?.detailLabel.text = String(describing: date.timeless)
         }
         calendarPickerViewController.dataSource = self
         adoptChildViewController(calendarPickerViewController)
@@ -48,7 +49,8 @@ final class ExampleViewController: UIViewController {
 }
 
 extension ExampleViewController: CalendarPickerDataSource {
-    func monthlySpecials(dayOne: Date) -> [Date] {
-        return [dayOne.plus(days: 5), dayOne.plus(days: 10), dayOne.plus(days: 15)]
+    func findSpecialDates(startDate: Date, endDate: Date, completion: ([Date]) -> Void) {
+        let dates = [startDate.plus(days: 5), startDate.plus(days: 10), startDate.plus(days: 15)]
+        completion(dates)
     }
 }

@@ -9,7 +9,7 @@
 import UIKit
 
 protocol CalendarPickerDataSource: class {
-    func monthlySpecials(dayOne: Date) -> [Date]
+    func findSpecialDates(startDate: Date, endDate: Date, completion: ([Date]) -> Void)
 }
 
 final class CalendarPickerViewController: UIViewController {
@@ -77,7 +77,10 @@ final class CalendarPickerViewController: UIViewController {
     // MARK: - Private
     
     private func configure() {
-        let specials = dataSource?.monthlySpecials(dayOne: date.startOfMonth)
-        calendarPickerView.buildButtons(targetDate: date, specials: specials)
+        calendarPickerView.buildButtons(targetDate: date, specials: nil)
+        dataSource?.findSpecialDates(startDate: date.startOfMonth, endDate: date.endOfMonth) {
+            dates in
+            calendarPickerView.apply(specials: dates)
+        }
     }
 }
