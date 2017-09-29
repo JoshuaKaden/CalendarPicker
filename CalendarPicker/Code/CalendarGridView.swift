@@ -10,18 +10,15 @@ import UIKit
 
 final class CalendarGridView: UIView {
     
-    static let buttonHeight = CGFloat(44)
-    static let standardHeight = buttonHeight * CGFloat(6)
+    // MARK: - Public Static Constants
     
-    private let blockerView = UIView()
+    static let standardHeight = (buttonHeight * CGFloat(6))
     
-    private var buttons: [CalendarDayButton] = [] {
-        didSet {
-            oldValue.forEach { $0.removeFromSuperview() }
-            buttons.forEach { self.addSubview($0) }
-            setNeedsLayout()
-        }
-    }
+    // MARK: - Private Static Constants
+    
+    private static let buttonHeight = CGFloat(44)
+
+    // MARK: - Public Properties
     
     var dayButtonTapAction: ((Date) -> Void)?
     
@@ -44,13 +41,25 @@ final class CalendarGridView: UIView {
         }
     }
     
+    // MARK: - Private Properties
+    
+    private let blockerView = UIView()
+    
+    private var buttons: [CalendarDayButton] = [] {
+        didSet {
+            oldValue.forEach { $0.removeFromSuperview() }
+            buttons.forEach { self.addSubview($0) }
+            setNeedsLayout()
+        }
+    }
+    
     // MARK: - Lifecycle
     
     override func layoutSubviews() {
         super.layoutSubviews()
         
         let buttonSize = CGSize(width: width / 7, height: CalendarGridView.buttonHeight)
-        
+                
         buttons.forEach {
             button in
             button.size = buttonSize

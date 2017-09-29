@@ -12,14 +12,10 @@ enum CalendarPickerMonthType { case current, next, previous }
 
 final class CalendarPickerView: UIView {
     
-    fileprivate let calendarGridView = CalendarGridView()
-    fileprivate let calendarGridViewNext = CalendarGridView()
-    fileprivate let calendarGridViewPrevious = CalendarGridView()
-
-    fileprivate var pageWidth: CGFloat { return calendarGridView.width }
-
-    private let scrollView = UIScrollView()
+    // MARK: - Public Static Constants
     
+    static let dayLabelsHeight = CGFloat(20)
+
     // MARK: - Public Properties
     
     var dayButtonTapAction: ((Date) -> Void)? {
@@ -32,11 +28,42 @@ final class CalendarPickerView: UIView {
         set { calendarGridView.targetDate = newValue }
     }
     
+    // MARK: - Private Properties
+    
+    fileprivate let calendarGridView = CalendarGridView()
+    fileprivate let calendarGridViewNext = CalendarGridView()
+    fileprivate let calendarGridViewPrevious = CalendarGridView()
+
+    private let dayLabelsContainer = UIView()
+
+    fileprivate var pageWidth: CGFloat { return calendarGridView.width }
+
+    private let scrollView = UIScrollView()
+    
     // MARK: - Lifecycle
     
     override func willMove(toWindow newWindow: UIWindow?) {
         super.willMove(toWindow: newWindow)
         guard let _ = newWindow else { return }
+        
+        let dayNames = [
+            NSLocalizedString("S", comment: "Very short weekday name for Sunday"),
+            NSLocalizedString("M", comment: "Very short weekday name for Monday"),
+            NSLocalizedString("T", comment: "Very short weekday name for Tuesday"),
+            NSLocalizedString("W", comment: "Very short weekday name for Wednesday"),
+            NSLocalizedString("T", comment: "Very short weekday name for Thursday"),
+            NSLocalizedString("F", comment: "Very short weekday name for Friday"),
+            NSLocalizedString("S", comment: "Very short weekday name for Saturday")
+        ]
+        dayNames.forEach {
+            name in
+            let label = UILabel()
+            label.text = name
+            label.textAlignment = .center
+            label.font = .systemFont(ofSize: 10)
+            self.dayLabelsContainer.addSubview(label)
+        }
+        addSubview(dayLabelsContainer)
         
         scrollView.delegate = self
         scrollView.isDirectionalLockEnabled = true
@@ -55,6 +82,18 @@ final class CalendarPickerView: UIView {
         scrollView.contentSize = CGSize(width: scrollView.width * 3, height: scrollView.height)
         
         let pageSize = scrollView.bounds.size
+        
+        dayLabelsContainer.size = CGSize(width: width, height: CalendarPickerView.dayLabelsHeight)
+        for index in 0...6 {
+            guard let label = dayLabelsContainer.subviews[index] as? UILabel else { return }
+            label.sizeToFit()
+            label.width = pageSize.width / 7
+            label.x = CGFloat(index) * label.width
+            label.centerVerticallyInSuperview()
+        }
+        
+        scrollView.y = dayLabelsContainer.maxY
+        
         calendarGridViewPrevious.size = pageSize
         
         calendarGridView.size = pageSize
@@ -114,6 +153,8 @@ final class CalendarPickerView: UIView {
         self.scrollView.contentOffset = CGPoint(x: self.pageWidth, y: 0)
     }
 }
+
+// MARK: - UIScrollViewDelegate
 
 extension CalendarPickerView: UIScrollViewDelegate {
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {

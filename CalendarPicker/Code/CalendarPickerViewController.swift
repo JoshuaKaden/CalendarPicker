@@ -14,7 +14,8 @@ protocol CalendarPickerDataSource: class {
 
 final class CalendarPickerViewController: UIViewController {
     
-    private var calendarPickerView: CalendarPickerView { return view as! CalendarPickerView }
+    // MARK: - Public Properties
+    
     weak var dataSource: CalendarPickerDataSource?
     
     var date: Date = Date() {
@@ -29,7 +30,11 @@ final class CalendarPickerViewController: UIViewController {
     
     var dateChangedAction: ((Date) -> Void)?
     
-    let standardHeight = CalendarGridView.standardHeight
+    let standardHeight = CalendarGridView.standardHeight + CalendarPickerView.dayLabelsHeight
+
+    // MARK - Private Properties
+    
+    private var calendarPickerView: CalendarPickerView { return view as! CalendarPickerView }
     
     // MARK: - Lifecycle
     
@@ -63,7 +68,6 @@ final class CalendarPickerViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
         view.height = standardHeight
     }
     
