@@ -13,16 +13,28 @@ final class CalendarDayButton: UIButton {
     let date: Date
     let row: Int
     
+    var dateColor: UIColor?
+    var dateWithFocusColor: UIColor?
+    var focusColor: UIColor?
+    var focusTodayColor: UIColor?
+    var specialColor: UIColor?
+    var todayColor: UIColor?
+    var todayWithFocusColor: UIColor?
+    
     var isSpecial: Bool {
         didSet {
-            updateSpecialCircle()
+            DispatchQueue.main.async {
+                self.updateSpecialCircle()
+            }
         }
     }
     
     var isTarget: Bool {
         didSet {
-            updateTitleColor()
-            updateTargetCircle()
+            DispatchQueue.main.async {
+                self.updateTitleColor()
+                self.updateTargetCircle()
+            }
         }
     }
     
@@ -52,10 +64,11 @@ final class CalendarDayButton: UIButton {
         
         dayLabel.text = String(describing: date.dayOfMonth)
         dayLabel.textAlignment = .center
+        dayLabel.textColor = dateColor
         addSubview(dayLabel)
         
         specialCircle.backgroundColor = .clear
-        specialCircle.fillColor = UIColor(colorLiteralRed: 204/255, green: 204/255, blue: 204/255, alpha: 1)
+        specialCircle.fillColor = specialColor ?? UIColor(colorLiteralRed: 204/255, green: 204/255, blue: 204/255, alpha: 1)
         targetCircle.backgroundColor = .clear
         
         updateTitleColor()
@@ -83,7 +96,9 @@ final class CalendarDayButton: UIButton {
     
     private func updateSpecialCircle() {
         if isSpecial {
-            addSubview(specialCircle)
+            if specialCircle.superview != self {
+                addSubview(specialCircle)
+            }
         } else {
             specialCircle.removeFromSuperview()
         }
@@ -91,27 +106,40 @@ final class CalendarDayButton: UIButton {
     
     private func updateTargetCircle() {
         if isTarget {
-            addSubview(targetCircle)
+            if targetCircle.superview != self {
+                addSubview(targetCircle)
+            }
             
             if date.isToday {
-                targetCircle.fillColor = .red
+                targetCircle.fillColor = focusTodayColor ?? .red
             } else {
-                targetCircle.fillColor = .black
+                targetCircle.fillColor = focusColor ?? .black
             }
             
         } else {
-            targetCircle.removeFromSuperview()
+            if self.targetCircle.superview == nil { return }
+            UIView.animate(withDuration: 0.33, animations: {
+                self.targetCircle.alpha = 0
+            }, completion: {
+                done in
+                self.targetCircle.removeFromSuperview()
+                self.targetCircle.alpha = 1
+            })
         }
     }
     
     private func updateTitleColor() {
-        dayLabel.textColor = .black
+        dayLabel.textColor = dateColor
         if date.isToday {
-            dayLabel.textColor = .red
+            dayLabel.textColor = todayColor
         }
 
         if isTarget {
-            dayLabel.textColor = .white
+            if date.isToday {
+                dayLabel.textColor = todayWithFocusColor
+            } else {
+                dayLabel.textColor = dateWithFocusColor
+            }
         }
     }
 }
