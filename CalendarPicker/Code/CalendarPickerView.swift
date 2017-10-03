@@ -14,25 +14,97 @@ final class CalendarPickerView: UIView {
     
     // MARK: - Public Static Constants
     
-    static let dayLabelsHeight = CGFloat(20)
+    static let dayLabelsHeight = CGFloat(24)
 
     // MARK: - Public Properties
+    
+    var dateColor: UIColor? {
+        didSet {
+            calendarGridView.dateColor = dateColor
+            calendarGridViewNext.dateColor = dateColor
+            calendarGridViewPrevious.dateColor = dateColor
+        }
+    }
+
+    var dateWithFocusColor: UIColor? {
+        didSet {
+            calendarGridView.dateWithFocusColor = dateWithFocusColor
+            calendarGridViewNext.dateWithFocusColor = dateWithFocusColor
+            calendarGridViewPrevious.dateWithFocusColor = dateWithFocusColor
+        }
+    }
     
     var dayButtonTapAction: ((Date) -> Void)? {
         get { return calendarGridView.dayButtonTapAction }
         set { calendarGridView.dayButtonTapAction = newValue }
     }
     
+    var focusColor: UIColor? {
+        didSet {
+            calendarGridView.focusColor = focusColor
+            calendarGridViewNext.focusColor = focusColor
+            calendarGridViewPrevious.focusColor = focusColor
+        }
+    }
+
+    var focusTodayColor: UIColor? {
+        didSet {
+            calendarGridView.focusTodayColor = focusTodayColor
+            calendarGridViewNext.focusTodayColor = focusTodayColor
+            calendarGridViewPrevious.focusTodayColor = focusTodayColor
+        }
+    }
+
+    var isEnabled: Bool = true {
+        didSet {
+            calendarGridView.isEnabled = isEnabled
+            calendarGridViewNext.isEnabled = isEnabled
+            calendarGridViewPrevious.isEnabled = isEnabled
+        }
+    }
+    
+    var monthSwipeAction: ((CalendarPickerMonthType) -> Void)?
+    
+    var scrollViewContentOffsetX: CGFloat {
+        get { return scrollView.contentOffset.x }
+        set { scrollView.contentOffset = CGPoint(x: newValue, y: scrollView.contentOffset.y) }
+    }
+    
+    var specialColor: UIColor? {
+        didSet {
+            calendarGridView.specialColor = specialColor
+            calendarGridViewNext.specialColor = specialColor
+            calendarGridViewPrevious.specialColor = specialColor
+        }
+    }
+
     var targetDate: Date {
         get { return calendarGridView.targetDate }
         set { calendarGridView.targetDate = newValue }
     }
     
+    var todayColor: UIColor? {
+        didSet {
+            calendarGridView.todayColor = todayColor
+            calendarGridViewNext.todayColor = todayColor
+            calendarGridViewPrevious.todayColor = todayColor
+        }
+    }
+
+    var todayWithFocusColor: UIColor? {
+        didSet {
+            calendarGridView.todayWithFocusColor = todayWithFocusColor
+            calendarGridViewNext.todayWithFocusColor = todayWithFocusColor
+            calendarGridViewPrevious.todayWithFocusColor = todayWithFocusColor
+        }
+    }
+
     // MARK: - Private Properties
     
-    fileprivate let calendarGridView = CalendarGridView()
-    fileprivate let calendarGridViewNext = CalendarGridView()
-    fileprivate let calendarGridViewPrevious = CalendarGridView()
+    fileprivate var calendarGridView: CalendarGridView { return calendarGridViews[1] }
+    fileprivate var calendarGridViewNext: CalendarGridView { return calendarGridViews[2] }
+    fileprivate var calendarGridViewPrevious: CalendarGridView { return calendarGridViews[0] }
+    private var calendarGridViews: [CalendarGridView] = [CalendarGridView(), CalendarGridView(), CalendarGridView()]
 
     private let dayLabelsContainer = UIView()
 
@@ -95,6 +167,7 @@ final class CalendarPickerView: UIView {
         scrollView.y = dayLabelsContainer.maxY
         
         calendarGridViewPrevious.size = pageSize
+        calendarGridViewPrevious.x = 0
         
         calendarGridView.size = pageSize
         calendarGridView.x = calendarGridViewPrevious.maxX
@@ -122,35 +195,90 @@ final class CalendarPickerView: UIView {
         reloadData()
     }
     
+    func scrollToCurrentMonth() {
+        if scrollView.contentOffset.x == width { return }
+        scrollView.size = CGSize(width: width * 3, height: height - CalendarPickerView.dayLabelsHeight)
+        scrollView.contentSize = CGSize(width: width * 3, height: height - CalendarPickerView.dayLabelsHeight)
+        scrollView.contentOffset = CGPoint(x: width, y: 0)
+    }
+    
     // MARK: - Private
     
     fileprivate func didScroll(page: Int) {
         if page == 2 { return }
         if page < 1 || page > 3 { return }
         
+        let oldTargetDate = targetDate
+        
         let newDate: Date
+        let monthType: CalendarPickerMonthType
         if page == 1 {
-//            Analytics.tagEvent("NYC Calendar Swipe Prev Month", attributes: [:])
-            newDate = targetDate.startOfPreviousMonth
+            monthType = .previous
+            newDate = oldTargetDate.startOfPreviousMonth
         } else {
-//            Analytics.tagEvent("NYC Calendar Swipe Next Month", attributes: [:])
-            newDate = targetDate.endOfMonth.plus(days: 1)
+            monthType = .next
+            newDate = oldTargetDate.endOfMonth.plus(days: 1)
         }
         
+        swapGridViews(monthType: monthType)
         targetDate = newDate
         reloadData()
         
-        if let dayButtonTapAction = dayButtonTapAction {
+        if let monthSwipeAction = self.monthSwipeAction {
+            monthSwipeAction(monthType)
+        }
+        
+        if let dayButtonTapAction = self.dayButtonTapAction {
             dayButtonTapAction(targetDate)
         }
     }
     
     private func reloadData() {
-        calendarGridView.buildButtons(targetDate: targetDate)
-        calendarGridViewPrevious.buildButtons(targetDate: targetDate.startOfPreviousMonth)
-        calendarGridViewNext.buildButtons(targetDate: targetDate.endOfMonth.plus(days: 1))
+        scrollToCurrentMonth()
+        calendarGridView.buildButtons(targetDate: targetDate, shouldHighlightTargetDate: true)
+        DispatchQueue.main.async {
+            self.calendarGridViewPrevious.buildButtons(targetDate: self.targetDate.startOfPreviousMonth, shouldHighlightTargetDate: false)
+            self.calendarGridViewNext.buildButtons(targetDate: self.targetDate.endOfMonth.plus(days: 1), shouldHighlightTargetDate: false)
+        }
+    }
+    
+    private func swapGridViews(monthType: CalendarPickerMonthType) {
+        if monthType == .current { return }
         
-        self.scrollView.contentOffset = CGPoint(x: self.pageWidth, y: 0)
+        let gridView = calendarGridView
+        let gridViewNext = calendarGridViewNext
+        let gridViewPrevious = calendarGridViewPrevious
+        
+        calendarGridView.removeFromSuperview()
+        calendarGridViewNext.removeFromSuperview()
+        calendarGridViewPrevious.removeFromSuperview()
+        
+        calendarGridViews.removeAll()
+        
+        let newGridView = CalendarGridView()
+        newGridView.dateColor = dateColor
+        newGridView.dateWithFocusColor = dateWithFocusColor
+        newGridView.focusColor = focusColor
+        newGridView.focusTodayColor = focusTodayColor
+        newGridView.specialColor = specialColor
+        newGridView.todayColor = todayColor
+        newGridView.todayWithFocusColor = todayWithFocusColor
+        
+        if monthType == .previous {
+            calendarGridViews = [newGridView, gridViewPrevious, gridView]
+        } else {
+            calendarGridViews = [gridView, gridViewNext, newGridView]
+        }
+        
+        scrollView.addSubview(calendarGridView)
+        scrollView.addSubview(calendarGridViewNext)
+        scrollView.addSubview(calendarGridViewPrevious)
+        
+        calendarGridView.frame = gridView.frame
+        calendarGridViewNext.frame = gridViewNext.frame
+        calendarGridViewPrevious.frame = gridViewPrevious.frame
+        
+        calendarGridView.dayButtonTapAction = gridView.dayButtonTapAction
     }
 }
 
@@ -158,15 +286,11 @@ final class CalendarPickerView: UIView {
 
 extension CalendarPickerView: UIScrollViewDelegate {
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        calendarGridView.isEnabled = false
-        calendarGridViewNext.isEnabled = false
-        calendarGridViewPrevious.isEnabled = false
+        isEnabled = false
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        calendarGridView.isEnabled = true
-        calendarGridViewNext.isEnabled = true
-        calendarGridViewPrevious.isEnabled = true
+        isEnabled = true
         
         let offset = scrollView.contentOffset.x
         let page: Int

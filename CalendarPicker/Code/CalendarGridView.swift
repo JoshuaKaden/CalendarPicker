@@ -16,12 +16,36 @@ final class CalendarGridView: UIView {
     
     // MARK: - Private Static Constants
     
-    private static let buttonHeight = CGFloat(44)
+    private static let buttonHeight = CGFloat(40)
 
     // MARK: - Public Properties
     
+    var dateColor: UIColor? {
+        didSet {
+            buttons.forEach { $0.dateColor = self.dateColor }
+        }
+    }
+    
+    var dateWithFocusColor: UIColor? {
+        didSet {
+            buttons.forEach { $0.dateWithFocusColor = self.dateWithFocusColor }
+        }
+    }
+    
     var dayButtonTapAction: ((Date) -> Void)?
     
+    var focusColor: UIColor? {
+        didSet {
+            buttons.forEach { $0.focusColor = self.focusColor }
+        }
+    }
+
+    var focusTodayColor: UIColor? {
+        didSet {
+            buttons.forEach { $0.focusTodayColor = self.focusTodayColor }
+        }
+    }
+
     var isEnabled: Bool = true {
         didSet {
             if isEnabled {
@@ -32,6 +56,12 @@ final class CalendarGridView: UIView {
         }
     }
     
+    var specialColor: UIColor? {
+        didSet {
+            buttons.forEach { $0.specialColor = self.specialColor }
+        }
+    }
+
     var targetDate: Date = Date() {
         didSet {
             if targetDate.isSameDay(date: oldValue) { return }
@@ -41,6 +71,18 @@ final class CalendarGridView: UIView {
         }
     }
     
+    var todayColor: UIColor? {
+        didSet {
+            buttons.forEach { $0.todayColor = self.todayColor }
+        }
+    }
+
+    var todayWithFocusColor: UIColor? {
+        didSet {
+            buttons.forEach { $0.todayWithFocusColor = self.todayWithFocusColor }
+        }
+    }
+
     // MARK: - Private Properties
     
     private let blockerView = UIView()
@@ -86,7 +128,15 @@ final class CalendarGridView: UIView {
         buttons.forEach { $0.isSpecial = specials.contains($0.date) }
     }
     
-    func buildButtons(targetDate date: Date, specials: [Date]? = nil) {
+    func buildButtons(targetDate date: Date, shouldHighlightTargetDate: Bool) {
+        targetDate = date
+       
+        if let targetButton = self.buttons.first(where: { $0.date.isSameDay(date: targetDate) }) {
+            targetButton.isTarget = shouldHighlightTargetDate
+            setNeedsLayout()
+            return
+        }
+        
         let startDate = date.startOfMonth
         let endDate = date.endOfMonth
         
@@ -96,11 +146,23 @@ final class CalendarGridView: UIView {
         
         for buttonIndex in 0...endDate.dayOfMonth - 1 {
             let buttonDate = startDate.plus(days: buttonIndex)
-            let isSpecial = specials?.contains(buttonDate) ?? false
-            let isTarget = buttonDate.isSameDay(date: date)
             
-            let button = CalendarDayButton(row: currentRow, column: currentColumn, date: buttonDate, isSpecial: isSpecial, isTarget: isTarget)
+            let isTarget: Bool
+            if shouldHighlightTargetDate {
+                isTarget = buttonDate.isSameDay(date: date)
+            } else {
+                isTarget = false
+            }
+            
+            let button = CalendarDayButton(row: currentRow, column: currentColumn, date: buttonDate, isSpecial: false, isTarget: isTarget)
             button.addTarget(self, action: #selector(didTapCalendarDayButton(_:)), for: .touchUpInside)
+            button.dateColor = dateColor
+            button.dateWithFocusColor = dateWithFocusColor
+            button.focusColor = focusColor
+            button.focusTodayColor = focusTodayColor
+            button.specialColor = specialColor
+            button.todayColor = todayColor
+            button.todayWithFocusColor = todayWithFocusColor
             buttons.append(button)
             
             if currentColumn == 6 {
