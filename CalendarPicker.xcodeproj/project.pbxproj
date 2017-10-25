@@ -23,6 +23,7 @@
 		932A746A1F7D6DFE00B07A43 /* CalendarDayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932A74691F7D6DFE00B07A43 /* CalendarDayButton.swift */; };
 		932A746C1F7D817D00B07A43 /* CalendarGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932A746B1F7D817D00B07A43 /* CalendarGridView.swift */; };
 		936933AC1F7EA6E300916637 /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936933AB1F7EA6E300916637 /* CircleView.swift */; };
+		93DD0B3A1FA1163500ED88AA /* CalendarDateSpan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93DD0B391FA1163500ED88AA /* CalendarDateSpan.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +45,7 @@
 		932A74691F7D6DFE00B07A43 /* CalendarDayButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CalendarDayButton.swift; path = Code/CalendarDayButton.swift; sourceTree = "<group>"; };
 		932A746B1F7D817D00B07A43 /* CalendarGridView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CalendarGridView.swift; path = Code/CalendarGridView.swift; sourceTree = "<group>"; };
 		936933AB1F7EA6E300916637 /* CircleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CircleView.swift; path = Library/CircleView.swift; sourceTree = "<group>"; };
+		93DD0B391FA1163500ED88AA /* CalendarDateSpan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CalendarDateSpan.swift; path = Code/CalendarDateSpan.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +115,7 @@
 		932A74621F7D626100B07A43 /* Calendar Picker */ = {
 			isa = PBXGroup;
 			children = (
+				93DD0B391FA1163500ED88AA /* CalendarDateSpan.swift */,
 				932A74691F7D6DFE00B07A43 /* CalendarDayButton.swift */,
 				932A746B1F7D817D00B07A43 /* CalendarGridView.swift */,
 				932A74651F7D62A300B07A43 /* CalendarPickerView.swift */,
@@ -197,6 +200,7 @@
 				932A745E1F7D608500B07A43 /* UIView+Layout.swift in Sources */,
 				932A74681F7D6AB500B07A43 /* Date+Sanity.swift in Sources */,
 				932A74471F7D5F6700B07A43 /* ViewController.swift in Sources */,
+				93DD0B3A1FA1163500ED88AA /* CalendarDateSpan.swift in Sources */,
 				932A74451F7D5F6700B07A43 /* AppDelegate.swift in Sources */,
 				932A74661F7D62A300B07A43 /* CalendarPickerView.swift in Sources */,
 				932A74601F7D608500B07A43 /* UIButton+Setup.swift in Sources */,

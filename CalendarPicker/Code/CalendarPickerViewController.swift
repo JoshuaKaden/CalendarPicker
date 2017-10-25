@@ -99,6 +99,10 @@ final class CalendarPickerViewController: UIViewController {
         set { calendarPickerView.isEnabled = newValue }
     }
     
+    var isLongMonth: Bool {
+        return calendarPickerView.isLongMonth
+    }
+    
     var specialColor: UIColor? = CalendarPickerViewController.defaultSpecialColor {
         didSet {
             if !isViewLoaded { return }
@@ -111,6 +115,7 @@ final class CalendarPickerViewController: UIViewController {
     }
 
     let standardHeight = CalendarGridView.standardHeight + CalendarPickerView.dayLabelsHeight
+    let standardShortHeight = CalendarGridView.standardHeight - (CalendarGridView.standardHeight / 6) + CalendarPickerView.dayLabelsHeight
 
     var todayColor: UIColor? = CalendarPickerViewController.defaultTodayColor {
         didSet {
@@ -174,7 +179,6 @@ final class CalendarPickerViewController: UIViewController {
             let oldDate = strongSelf.date
             strongSelf.date = date
             strongSelf.delegate?.didChangeDate(calendarPickerViewController: strongSelf, newDate: date, oldDate: oldDate)
-            strongSelf.findSpecialDates()
         }
         
         calendarPickerView.monthSwipeAction = {
@@ -182,6 +186,11 @@ final class CalendarPickerViewController: UIViewController {
             monthType in
             
             guard let strongSelf = self else { return }
+            
+            let oldDate = strongSelf.date
+            strongSelf.date = strongSelf.calendarPickerView.targetDate
+            strongSelf.delegate?.didChangeDate(calendarPickerViewController: strongSelf, newDate: strongSelf.date, oldDate: oldDate)
+            
             switch monthType {
             case .current:
                 // no op
@@ -191,6 +200,8 @@ final class CalendarPickerViewController: UIViewController {
             case .previous:
                 strongSelf.delegate?.didSwipeToPreviousMonth(calendarPickerViewController: strongSelf)
             }
+            
+            strongSelf.findAllSpecialDates()
         }
     }
     
@@ -198,12 +209,7 @@ final class CalendarPickerViewController: UIViewController {
         super.viewWillAppear(animated)
         configure()
     }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        view.height = standardHeight
-    }
-    
+        
     // MARK: - Public
     
     func setDate(_ newDate: Date, animated: Bool, completion: (() -> Void)? = nil) {
@@ -212,7 +218,11 @@ final class CalendarPickerViewController: UIViewController {
         if newDate.isSameMonth(date: oldDate) {
             monthType = .current
         } else {
-            if Calendar.current.component(.month, from: newDate) > Calendar.current.component(.month, from: oldDate) {
+            if Calendar.current.component(.year, from: newDate) > Calendar.current.component(.year, from: oldDate) {
+                monthType = .next
+            } else if Calendar.current.component(.year, from: newDate) < Calendar.current.component(.year, from: oldDate) {
+                monthType = .previous
+            } else if Calendar.current.component(.month, from: newDate) > Calendar.current.component(.month, from: oldDate) {
                 monthType = .next
             } else {
                 monthType = .previous
@@ -221,11 +231,11 @@ final class CalendarPickerViewController: UIViewController {
         
         if monthType == .current || !animated {
             date = newDate
-            calendarPickerView.buildButtons(targetDate: newDate, shouldForce: false)
+            calendarPickerView.targetDate = date
             return
         }
         
-        UIView.animate(withDuration: 0.33, animations: {
+        UIView.animate(withDuration: 0.33, delay: 0, options: .curveEaseInOut, animations: {
             
             if monthType == .previous {
                 self.calendarPickerView.scrollViewContentOffsetX = 0
@@ -234,9 +244,13 @@ final class CalendarPickerViewController: UIViewController {
             }
             
         }, completion: {
+            [weak self]
             done in
-            self.date = newDate
-            self.calendarPickerView.buildButtons(targetDate: newDate, shouldForce: false)
+            self?.calendarPickerView.buildButtons(targetDate: newDate, shouldForce: true)
+            self?.date = newDate
+            self?.delay(0.2) {
+                self?.findAllSpecialDates()
+            }
             if let completion = completion {
                 completion()
             }
@@ -249,23 +263,44 @@ final class CalendarPickerViewController: UIViewController {
         view.width = UIScreen.main.bounds.size.width
         view.height = standardHeight
         calendarPickerView.buildButtons(targetDate: date, shouldForce: true)
-        findSpecialDates()
+        findAllSpecialDates()
     }
     
-    private func findSpecialDates() {
-        dataSource?.findSpecialDates(calendarPickerViewController: self, startDate: date.startOfMonth, endDate: date.endOfMonth) {
-            dates in
-            self.calendarPickerView.apply(specials: dates, monthType: .current)
-        }
+    private func delay(_ delay: Double, closure: @escaping () -> Void) {
+        DispatchQueue.main.asyncAfter(
+            deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: closure)
+    }
+    
+    private func findAllSpecialDates() {
+        let dateSpans = [
+            CalendarDateSpan(startDate: date.startOfMonth, endDate: date.endOfMonth),
+            CalendarDateSpan(startDate: date.endOfMonth.plus(days: 1), endDate: date.endOfMonth.plus(days: 1).endOfMonth),
+            CalendarDateSpan(startDate: date.startOfPreviousMonth, endDate: date.startOfPreviousMonth.endOfMonth)
+        ]
         
-        dataSource?.findSpecialDates(calendarPickerViewController: self, startDate: date.endOfMonth.plus(days: 1), endDate: date.endOfMonth.plus(days: 1).endOfMonth) {
-            dates in
-            self.calendarPickerView.apply(specials: dates, monthType: .next)
+        findSpecialDates(dateSpan: dateSpans[0], monthType: .current) {
+            [weak self] in
+            
+            if let strongSelf = self {
+                strongSelf.findSpecialDates(dateSpan: dateSpans[1], monthType: .next) {
+                    [weak self] in
+                    
+                    if let strongSelf = self {
+                        strongSelf.findSpecialDates(dateSpan: dateSpans[2], monthType: .previous) {}
+                    }
+                }
+            }
         }
-        
-        dataSource?.findSpecialDates(calendarPickerViewController: self, startDate: date.startOfPreviousMonth, endDate: date.startOfPreviousMonth.endOfMonth) {
+    }
+    
+    private func findSpecialDates(dateSpan: CalendarDateSpan, monthType: CalendarPickerMonthType, completion: @escaping () -> Void) {
+        dataSource?.findSpecialDates(calendarPickerViewController: self, startDate: dateSpan.startDate, endDate: dateSpan.endDate) {
+            [weak self]
             dates in
-            self.calendarPickerView.apply(specials: dates, monthType: .previous)
+            self?.calendarPickerView.apply(specials: dates, monthType: monthType)
+            if let _ = self {
+                completion()
+            }
         }
     }
 }

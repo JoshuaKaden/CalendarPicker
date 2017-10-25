@@ -85,10 +85,10 @@ final class CalendarDayButton: UIButton {
         dayLabel.sizeToFit()
         dayLabel.centerInSuperview()
         
-        targetCircle.frame = bounds
+        targetCircle.frame = bounds.insetBy(dx: 2, dy: 2)
         
-        specialCircle.size = CGSize(width: 5, height: 5)
-        specialCircle.y = dayLabel.maxY + 3
+        specialCircle.size = CGSize(width: 4, height: 4)
+        specialCircle.y = dayLabel.maxY + 2
         specialCircle.centerHorizontallyInSuperview()
     }
     
