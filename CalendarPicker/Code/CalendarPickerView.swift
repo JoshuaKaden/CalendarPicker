@@ -63,6 +63,10 @@ final class CalendarPickerView: UIView {
         }
     }
     
+    var isLongMonth: Bool {
+        return calendarGridView.isLongMonth
+    }
+    
     var monthSwipeAction: ((CalendarPickerMonthType) -> Void)?
     
     var scrollViewContentOffsetX: CGFloat {
@@ -195,6 +199,17 @@ final class CalendarPickerView: UIView {
         reloadData()
     }
     
+    func needsSpecials(monthType: CalendarPickerMonthType) -> Bool {
+        switch monthType {
+        case .current:
+            return calendarGridView.specialDates.isEmpty
+        case .next:
+            return calendarGridViewNext.specialDates.isEmpty
+        case .previous:
+            return calendarGridViewPrevious.specialDates.isEmpty
+        }
+    }
+    
     func scrollToCurrentMonth() {
         if scrollView.contentOffset.x == width { return }
         scrollView.size = CGSize(width: width * 3, height: height - CalendarPickerView.dayLabelsHeight)
@@ -227,19 +242,13 @@ final class CalendarPickerView: UIView {
         if let monthSwipeAction = self.monthSwipeAction {
             monthSwipeAction(monthType)
         }
-        
-        if let dayButtonTapAction = self.dayButtonTapAction {
-            dayButtonTapAction(targetDate)
-        }
     }
     
     private func reloadData() {
         scrollToCurrentMonth()
         calendarGridView.buildButtons(targetDate: targetDate, shouldHighlightTargetDate: true)
-        DispatchQueue.main.async {
-            self.calendarGridViewPrevious.buildButtons(targetDate: self.targetDate.startOfPreviousMonth, shouldHighlightTargetDate: false)
-            self.calendarGridViewNext.buildButtons(targetDate: self.targetDate.endOfMonth.plus(days: 1), shouldHighlightTargetDate: false)
-        }
+        calendarGridViewPrevious.buildButtons(targetDate: targetDate.startOfPreviousMonth, shouldHighlightTargetDate: false)
+        calendarGridViewNext.buildButtons(targetDate: targetDate.endOfMonth.plus(days: 1), shouldHighlightTargetDate: false)
     }
     
     private func swapGridViews(monthType: CalendarPickerMonthType) {

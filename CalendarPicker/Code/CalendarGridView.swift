@@ -46,6 +46,13 @@ final class CalendarGridView: UIView {
         }
     }
 
+    var isLongMonth: Bool {
+        if let _ = buttons.first(where: { $0.row == 5 }) {
+            return true
+        }
+        return false
+    }
+    
     var isEnabled: Bool = true {
         didSet {
             if isEnabled {
@@ -62,6 +69,8 @@ final class CalendarGridView: UIView {
         }
     }
 
+    private(set) var specialDates: [Date] = []
+    
     var targetDate: Date = Date() {
         didSet {
             if targetDate.isSameDay(date: oldValue) { return }
@@ -125,6 +134,7 @@ final class CalendarGridView: UIView {
     // MARK: - Public
     
     func apply(specials: [Date]) {
+        specialDates = specials
         buttons.forEach { $0.isSpecial = specials.contains($0.date) }
     }
     
